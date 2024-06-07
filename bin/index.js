@@ -3,8 +3,10 @@
 import inquirer from "inquirer";
 import shell from "shelljs";
 import { Listr } from "listr2";
+import { Axiom } from "@axiomhq/js";
+import "dotenv/config";
 
-const questions1 = [
+const Initial_Questions = [
   {
     type: "input",
     name: "projectName",
@@ -20,7 +22,7 @@ const questions1 = [
   },
 ];
 
-const questions2 = [
+const Setup_Questions = [
   {
     type: "list",
     name: "cloud",
@@ -58,17 +60,52 @@ const questions2 = [
   },
 ];
 
+const axiom = new Axiom({
+  token: process.env.AXIOM_TOKEN,
+  orgId: process.env.AXIOM_ORGID,
+});
+
+async function axiomProcess() {
+  await axiom.ingest(process.env.AXIOM_DATASET, [{ foo3: "bar" }]);
+  await axiom.flush();
+}
+
+async function gitCloneProcess(url, projectName, currentDir) {
+  if (!shell.which("git")) {
+    await axiomProcess();
+    shell.echo("Sorry, this script requires git");
+    shell.exit(1);
+  }
+
+  shell.cd(currentDir);
+  const cloneCommand = `git clone ${url} ${projectName}`;
+  return shell.exec(cloneCommand, { silent: true });
+}
+
+async function npmInstallProcess(projectName) {
+  if (!shell.which("npm")) {
+    await axiomProcess();
+    shell.echo("Sorry, this script requires npm");
+    shell.exit(1);
+  }
+
+  shell.cd(projectName);
+  const npmInstallCommand = `npm i`;
+  return shell.exec(npmInstallCommand, { silent: true });
+}
+
 function main() {
   initialQuestions();
 }
 
 function initialQuestions() {
-  inquirer.prompt(questions1).then((answers) => {
+  inquirer.prompt(Initial_Questions).then(async (answers) => {
     const url = "https://github.com/ocmodi21/Job-Post-Webapp.git";
     const projectName = answers["projectName"];
     const currentDir = shell.pwd().stdout;
 
-    if (sh.test("-d", currentDir + "/" + projectName)) {
+    if (shell.test("-d", currentDir + "/" + projectName)) {
+      await axiomProcess();
       shell.echo(projectName + " exists in the current directory");
       shell.exit(1);
     }
@@ -85,39 +122,21 @@ function initialQuestions() {
 }
 
 function setupQuestions(url, projectName, currentDir) {
-  inquirer.prompt(questions2).then(() => {
+  inquirer.prompt(Setup_Questions).then(async () => {
     listrProcess(url, projectName, currentDir);
   });
 }
 
-function listrProcess(url, projectName, currentDir) {
+async function listrProcess(url, projectName, currentDir) {
   const listr = new Listr([
     {
       title: "Cloning repository",
-      task: () => {
-        if (!shell.which("git")) {
-          shell.echo("Sorry, this script requires git");
-          shell.exit(1);
-        }
-
-        shell.cd(currentDir);
-        const cloneCommand = `git clone ${url} ${projectName}`;
-        return shell.exec(cloneCommand, { silent: true });
-      },
+      task: () => gitCloneProcess(url, projectName, currentDir),
       skip: (ctx) => ctx.error,
     },
     {
       title: "Installing dependencies",
-      task: () => {
-        if (!shell.which("npm")) {
-          shell.echo("Sorry, this script requires npm");
-          shell.exit(1);
-        }
-
-        shell.cd(projectName);
-        const npmInstallCommand = `npm i`;
-        return shell.exec(npmInstallCommand, { silent: true });
-      },
+      task: () => npmInstallProcess(projectName),
       skip: (ctx) => ctx.error,
     },
   ]);
