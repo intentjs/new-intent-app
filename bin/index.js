@@ -15,7 +15,7 @@ const questions1 = [
     type: "list",
     name: "setup",
     message: "With which configuration you want to continue?",
-    choices: ["Default", "Custome"],
+    choices: ["Default-AWS", "Default-AZURE", "Custom"],
     default: "Default",
   },
 ];
@@ -23,9 +23,37 @@ const questions1 = [
 const questions2 = [
   {
     type: "list",
+    name: "cloud",
+    message: "Do you plan to use Cloud service?",
+    choices: ["AWS", "AZURE", "None"],
+    default: "None",
+  },
+  {
+    type: "list",
     name: "database",
-    message: "Do you plan to use DataBase service like SQL or NO-SQL",
+    message: "Do you plan to use DataBase service?",
     choices: ["Mysql", "Postgres", "MongoDb", "None"],
+    default: "None",
+  },
+  {
+    type: "list",
+    name: "cache",
+    message: "Do you plan to use Cache service?",
+    choices: ["Redis", "None"],
+    default: "None",
+  },
+  {
+    type: "list",
+    name: "queue",
+    message: "Do you plan to use DataBase service?",
+    choices: ["SQS", "RabbitMQ", "Kafka", "None"],
+    default: "None",
+  },
+  {
+    type: "list",
+    name: "storage",
+    message: "Do you plan to use DataBase service?",
+    choices: ["S3", "None"],
     default: "None",
   },
 ];
@@ -40,14 +68,17 @@ function initialQuestions() {
     const projectName = answers["projectName"];
     const currentDir = shell.pwd().stdout;
 
-    if (answers.setup === "Custome") {
-      setupQuestions(url, projectName, currentDir);
-    } else {
-      if (!shell.which("git")) {
-        shell.echo("Sorry, this script requires git");
-        shell.exit(1);
-      }
+    if (sh.test("-d", currentDir + "/" + projectName)) {
+      shell.echo(projectName + " exists in the current directory");
+      shell.exit(1);
+    }
 
+    if (answers.setup === "Custom") {
+      setupQuestions(url, projectName, currentDir);
+    } else if (
+      answers.setup === "Default-AWS" ||
+      answers.setup === "Default-AZURE"
+    ) {
       listrProcess(url, projectName, currentDir);
     }
   });
@@ -55,11 +86,6 @@ function initialQuestions() {
 
 function setupQuestions(url, projectName, currentDir) {
   inquirer.prompt(questions2).then(() => {
-    if (!shell.which("git")) {
-      shell.echo("Sorry, this script requires git");
-      shell.exit(1);
-    }
-
     listrProcess(url, projectName, currentDir);
   });
 }
@@ -69,6 +95,11 @@ function listrProcess(url, projectName, currentDir) {
     {
       title: "Cloning repository",
       task: () => {
+        if (!shell.which("git")) {
+          shell.echo("Sorry, this script requires git");
+          shell.exit(1);
+        }
+
         shell.cd(currentDir);
         const cloneCommand = `git clone ${url} ${projectName}`;
         return shell.exec(cloneCommand, { silent: true });
@@ -78,6 +109,11 @@ function listrProcess(url, projectName, currentDir) {
     {
       title: "Installing dependencies",
       task: () => {
+        if (!shell.which("npm")) {
+          shell.echo("Sorry, this script requires npm");
+          shell.exit(1);
+        }
+
         shell.cd(projectName);
         const npmInstallCommand = `npm i`;
         return shell.exec(npmInstallCommand, { silent: true });
