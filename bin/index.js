@@ -5,6 +5,7 @@ import shell from "shelljs";
 import { Listr } from "listr2";
 import { Axiom } from "@axiomhq/js";
 import "dotenv/config";
+import os from "os";
 
 const Initial_Questions = [
   {
@@ -60,19 +61,36 @@ const Setup_Questions = [
   },
 ];
 
+var type = os.type();
+var osName;
+
+switch (type) {
+  case "Darwin":
+    osName = "MacOS";
+    break;
+  case "Linux":
+    osName = "Linux";
+    break;
+  case "Windows_NT":
+    osName = "Windows";
+    break;
+  default:
+    console.log("other operating system");
+}
+
 const axiom = new Axiom({
   token: process.env.AXIOM_TOKEN,
   orgId: process.env.AXIOM_ORGID,
 });
 
-async function axiomProcess() {
-  await axiom.ingest(process.env.AXIOM_DATASET, [{ foo3: "bar" }]);
+async function axiomProcess(data) {
+  await axiom.ingest(process.env.AXIOM_DATASET, data);
   await axiom.flush();
 }
 
 async function gitCloneProcess(url, projectName, currentDir) {
   if (!shell.which("git")) {
-    await axiomProcess();
+    await axiomProcess([{ Git: "Git not found" }, { OS: osName }]);
     shell.echo("Sorry, this script requires git");
     shell.exit(1);
   }
@@ -84,7 +102,7 @@ async function gitCloneProcess(url, projectName, currentDir) {
 
 async function npmInstallProcess(projectName) {
   if (!shell.which("npm")) {
-    await axiomProcess();
+    await axiomProcess([{ npm: "npm not found" }, { OS: osName }]);
     shell.echo("Sorry, this script requires npm");
     shell.exit(1);
   }
@@ -105,7 +123,8 @@ function initialQuestions() {
     const currentDir = shell.pwd().stdout;
 
     if (shell.test("-d", currentDir + "/" + projectName)) {
-      await axiomProcess();
+      console.log(osName);
+      await axiomProcess([{ Dir: "Directory already exists" }, { OS: osName }]);
       shell.echo(projectName + " exists in the current directory");
       shell.exit(1);
     }
@@ -131,13 +150,25 @@ async function listrProcess(url, projectName, currentDir) {
   const listr = new Listr([
     {
       title: "Cloning repository",
-      task: () => gitCloneProcess(url, projectName, currentDir),
-      skip: (ctx) => ctx.error,
+      task: () => {
+        try {
+          gitCloneProcess(url, projectName, currentDir);
+        } catch (error) {
+          shell.echo("Error: Git clone failed");
+          shell.exit(1);
+        }
+      },
     },
     {
       title: "Installing dependencies",
-      task: () => npmInstallProcess(projectName),
-      skip: (ctx) => ctx.error,
+      task: () => {
+        try {
+          npmInstallProcess(url, projectName, currentDir);
+        } catch (error) {
+          shell.echo("Error: npm install failed");
+          shell.exit(1);
+        }
+      },
     },
   ]);
 
