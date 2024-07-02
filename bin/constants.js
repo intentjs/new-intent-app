@@ -5,13 +5,13 @@ export const SETUP_QUESTIONS = [
     message: "What's your *Intent* to name this project?",
     default: "my-app",
   },
-  {
-    type: "list",
-    name: "setup",
-    message: "With which configuration you want to continue?",
-    choices: ["Default-AWS", "Default-AZURE", "Custom"],
-    default: "Default",
-  },
+  // {
+  //   type: "list",
+  //   name: "setup",
+  //   message: "With which configuration you want to continue?",
+  //   choices: ["Default-AWS", "Default-AZURE", "Custom"],
+  //   default: "Default",
+  // },
 ];
 
 export const CONFIGURATION_QUESTIONS = [

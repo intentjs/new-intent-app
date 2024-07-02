@@ -1,5 +1,4 @@
 import { CONFIGURATION_QUESTIONS, SETUP_QUESTIONS } from "./constants.js";
-import { listrProcess } from "./startProcess.js";
 import { getOSName } from "./utils/getOS.js";
 import inquirer from "inquirer";
 import shell from "shelljs";
@@ -18,6 +17,10 @@ const initialSetupQuestions = () =>
         shell.echo(projectName + " exists in the current directory");
         reject("Directory already exists");
       }
+      resolve({
+        projectName,
+        currentDir,
+      });
 
       if (answers.setup === "Custom") {
         setupQuestions(projectName, currentDir);
@@ -33,10 +36,10 @@ const initialSetupQuestions = () =>
     });
   });
 
-function setupQuestions(projectName, currentDir) {
-  inquirer.prompt(CONFIGURATION_QUESTIONS).then(async () => {
-    listrProcess(projectName, currentDir);
-  });
-}
+// function setupQuestions(projectName, currentDir) {
+//   inquirer.prompt(CONFIGURATION_QUESTIONS).then(async () => {
+//     listrProcess(projectName, currentDir);
+//   });
+// }
 
 export default initialSetupQuestions;
