@@ -51,6 +51,9 @@ export const installDependencies =
 export const resetGitHistory = (projectName) => () => {
   try {
     shell.exec("rm -rf .git", { silent: true });
+    shell.exec("rm -rf .github", { silent: true });
+    shell.exec("rm CODE_OF_CONDUCT.md", { silent: true });
+    shell.exec("rm LICENSE", { silent: true });
     shell.exec("git init", { silent: true });
   } catch (error) {
     shell.echo("Error: Failed trying to reset git history");
