@@ -7,8 +7,6 @@ import {
   installDependencies,
 } from "./actions/index.js";
 
-console.log(installDependencies);
-
 export async function startProcess({
   projectName,
   currentDir,

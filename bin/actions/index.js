@@ -11,7 +11,7 @@ const redisDependencies = ["ioredis"];
 
 export const copyEnvironmentFile = (projectName) => () => {
   try {
-    shell.exec("cp .env.example .env");
+    shell.exec("cp .env.example .env", { silent: true });
   } catch (error) {
     shell.echo("Error: Failed trying to reset git history");
     shell.exit(1);
@@ -21,7 +21,6 @@ export const copyEnvironmentFile = (projectName) => () => {
 export const installDependencies =
   ({ projectName, useAws, useRedis }) =>
   () => {
-    console.log("config  ====>", useAws, useRedis);
     try {
       if (!shell.which("npm")) {
         shell.echo("Sorry, this script requires npm");
@@ -33,11 +32,15 @@ export const installDependencies =
       shell.exec(npmInstallCommand, { silent: true });
 
       if (useAws) {
-        shell.exec(`npm i ${awsDependencies.join(" ")} --save`);
+        shell.exec(`npm i ${awsDependencies.join(" ")} --save`, {
+          silent: true,
+        });
       }
 
       if (useRedis) {
-        shell.exec(`npm i ${redisDependencies.join(" ")} --save`);
+        shell.exec(`npm i ${redisDependencies.join(" ")} --save`, {
+          silent: true,
+        });
       }
     } catch (error) {
       shell.echo("Error: npm install failed");
@@ -47,8 +50,8 @@ export const installDependencies =
 
 export const resetGitHistory = (projectName) => () => {
   try {
-    shell.exec("rm -rf .git");
-    shell.exec("git init");
+    shell.exec("rm -rf .git", { silent: true });
+    shell.exec("git init", { silent: true });
   } catch (error) {
     shell.echo("Error: Failed trying to reset git history");
     shell.exit(1);
