@@ -1,21 +1,17 @@
 import initialSetupQuestions from "./initalSetup.js";
 import { startProcess } from "./startProcess.js";
-import Tracker from "./tracker.js";
-import { getOSName } from "./utils/getOS.js";
-
-const tracker = new Tracker();
 
 async function main() {
   try {
-    const { projectName, currentDir } = await initialSetupQuestions();
-    await startProcess(projectName, currentDir);
-    await tracker.trackEvent([{ success: true }, { OS: osName }]);
+    const { projectName, currentDir, useAws, useRedis } =
+      await initialSetupQuestions();
+    console.log(projectName, currentDir, useAws, useRedis);
+    await startProcess({ projectName, currentDir, useAws, useRedis });
   } catch (err) {
-    const os = getOSName();
-    await tracker.trackEvent([{ error: err }, { OS: os }]);
+    console.log(err);
+    console.log(err["message"]);
     process.exit();
   }
 }
 
 main();
-export { tracker };

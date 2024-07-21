@@ -5,6 +5,16 @@ export const SETUP_QUESTIONS = [
     message: "What's your *Intent* to name this project?",
     default: "my-app",
   },
+  {
+    type: "confirm",
+    name: "useAws",
+    message: "Are you planning to use AWS in your application?",
+  },
+  {
+    type: "confirm",
+    name: "useRedis",
+    message: "Would you like to use Redis in your application?",
+  },
   // {
   //   type: "list",
   //   name: "setup",

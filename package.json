@@ -1,6 +1,7 @@
 {
-  "name": "create-intent-app",
-  "version": "1.0.0",
+  "name": "new-intent-app",
+  "version": "0.0.1",
+  "description": "An npx command to quickly start your Intent application.",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -10,9 +11,8 @@
     "create-intent-app": "bin/index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Vinayak Sarawagi <vinayaksarawagi25@gmail.com>",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@axiomhq/js": "^1.0.0-rc.3",
     "dotenv": "^16.4.5",

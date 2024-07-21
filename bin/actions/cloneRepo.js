@@ -1,10 +1,8 @@
 import shell from "shelljs";
-import { tracker } from "../index.js";
 
 export async function gitCloneProcess(projectName, currentDir) {
-  const url = "https://github.com/ocmodi21/Job-Post-Webapp.git";
+  const url = "https://github.com/intentjs/new-app-starter";
   if (!shell.which("git")) {
-    await tracker.trackEvent([{ npm: "npm not found" }, { OS: osName }]);
     shell.echo("Sorry, git is required for this step.");
     shell.exit(1);
   }
@@ -13,3 +11,14 @@ export async function gitCloneProcess(projectName, currentDir) {
   const cloneCommand = `git clone ${url} ${projectName}`;
   return shell.exec(cloneCommand, { silent: true });
 }
+
+export const cloneTemplate =
+  ({ projectName, currentDir }) =>
+  () => {
+    try {
+      gitCloneProcess(projectName, currentDir);
+    } catch (error) {
+      shell.echo("Error: Git clone failed");
+      shell.exit(1);
+    }
+  };

@@ -6,33 +6,35 @@ import shell from "shelljs";
 const initialSetupQuestions = () =>
   new Promise((resolve, reject) => {
     const systemOS = getOSName();
-    console.log(systemOS);
     inquirer.prompt(SETUP_QUESTIONS).then(async (answers) => {
-      console.log("entered");
       const projectName = answers["projectName"];
+      const useAws = answers["useAws"];
+      const useRedis = answers["useRedis"];
       const currentDir = shell.pwd().stdout;
 
       if (shell.test("-d", currentDir + "/" + projectName)) {
-        console.log(systemOS);
         shell.echo(projectName + " exists in the current directory");
         reject("Directory already exists");
       }
+
       resolve({
         projectName,
         currentDir,
+        useAws,
+        useRedis,
       });
 
-      if (answers.setup === "Custom") {
-        setupQuestions(projectName, currentDir);
-      } else if (
-        answers.setup === "Default-AWS" ||
-        answers.setup === "Default-AZURE"
-      ) {
-        resolve({
-          projectName,
-          currentDir,
-        });
-      }
+      // if (answers.setup === "Custom") {
+      //   setupQuestions(projectName, currentDir);
+      // } else if (
+      //   answers.setup === "Default-AWS" ||
+      //   answers.setup === "Default-AZURE"
+      // ) {
+      //   resolve({
+      //     projectName,
+      //     currentDir,
+      //   });
+      // }
     });
   });
 
