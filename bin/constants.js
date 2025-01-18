@@ -49,14 +49,14 @@ export const CONFIGURATION_QUESTIONS = [
   {
     type: "list",
     name: "queue",
-    message: "Do you plan to use DataBase service?",
+    message: "Do you plan to use Queue service?",
     choices: ["SQS", "RabbitMQ", "Kafka", "None"],
     default: "None",
   },
   {
     type: "list",
     name: "storage",
-    message: "Do you plan to use DataBase service?",
+    message: "Do you plan to use Storage service?",
     choices: ["S3", "None"],
     default: "None",
   },
